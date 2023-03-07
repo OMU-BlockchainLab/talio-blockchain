@@ -1,0 +1,52 @@
+[package]
+name = "pallet-certificate"
+version = "1.0.0"
+description = "FRAME pallet account for defining account's information."
+authors = ["hoangtheanhhp <https://github.com/hoangtheanhhp>"]
+edition = "2021"
+license = "Unlicense"
+publish = false
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+
+[dependencies]
+codec = { package = "parity-scale-codec", version = "3.0.0", default-features = false, features = [
+	"derive",
+] }
+scale-info = { version = "2.0.1", default-features = false, features = ["derive"] }
+frame-support = { default-features = false,  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.19"}
+frame-system = { default-features = false,  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.19" }
+frame-benchmarking = { default-features = false,  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.19", optional = true }
+
+sp-core = { default-features = false,  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.19" }
+sp-std = { default-features = false,  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.19" }
+sp-io = { default-features = false,  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.19" }
+sp-runtime = { default-features = false,  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.19" }
+pallet-randomness-collective-flip = { default-features = false,  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.19" }
+
+pallet-utils = { version = "0.0.1", default-features = false, path = "../utils" }
+pallet-account = {default-features = false, path = "../account" }
+pallet-timestamp = { default-features = false,  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.19" }
+
+[dev-dependencies]
+hierarchy-system = {default-features = false, path = "../hierarchy-system" }
+
+
+[features]
+default = ["std"]
+std = [
+	"codec/std",
+	"scale-info/std",
+	"frame-support/std",
+	"frame-system/std",
+	"frame-benchmarking/std",
+	"pallet-utils/std",
+	"pallet-account/std",
+	"sp-std/std",
+	"hierarchy-system/std",
+	"pallet-timestamp/std",
+]
+
+runtime-benchmarks = ["frame-benchmarking/runtime-benchmarks"]
+try-runtime = ["frame-support/try-runtime"]

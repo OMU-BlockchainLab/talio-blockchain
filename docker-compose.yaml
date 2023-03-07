@@ -1,0 +1,84 @@
+version: '3'
+services:
+  talio-net-node-1:
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile
+    container_name: talio-net-node-1
+    restart: on-failure
+    stop_signal: SIGINT
+    stop_grace_period: 20s
+    ports:
+      - 9944:9944
+    expose:
+      - 9944
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "10"
+    networks:
+      talio-network:
+        ipv4_address: 172.10.17.3
+    command: bash -c "./scv-chain --base-path /tmp/alice --chain local --alice --port 30333 --ws-port 9944 --rpc-port 9933 --rpc-cors all --ws-external --node-key 0000000000000000000000000000000000000000000000000000000000000001 --name \"Alice Test\""
+
+  talio-net-node-2:
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile
+    container_name: talio-net-node-2
+    restart: on-failure
+    stop_signal: SIGINT
+    stop_grace_period: 20s
+    ports:
+      - 9945:9945
+    expose:
+      - 9945
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "10"
+    networks:
+      talio-network:
+        ipv4_address: 172.10.17.4
+    command: bash -c "./scv-chain --base-path /tmp/bob --chain local --bob --port 30335 --ws-port 9945 --rpc-port 9935 --validator --rpc-cors all --bootnodes /ip4/172.10.17.3/tcp/30333/p2p/12D3KooWEyoppNCUx8Yx66oV9fJnriXwCcXwDDUA2kj6vnc6iDEp --name \"Bob Test\""
+  nginx-server:
+    image: nginx:mainline-alpine
+    container_name: nginx-server
+    restart: unless-stopped
+    ports:
+      - "443:443"
+    # extra_hosts:
+      # - "host.docker.internal:Docker-host"
+    networks:
+      talio-network:
+          ipv4_address: 172.10.17.5
+    volumes:
+      - web-root:/var/www/html
+      - ./nginx-conf:/etc/nginx/conf.d
+      - ./certbot-etc/:/etc/letsencrypt/
+      - ./certbot-var/:/var/lib/letsencrypt/
+      - ./dhparam/:/etc/ssl/certs/
+volumes:
+  certbot-etc:
+  certbot-var:
+  web-root:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/ec2-user/scv/substrate-node/views/
+      o: bind
+  dhparam:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/ec2-user/scv/substrate-node/dhparam/
+      o: bind
+networks:
+  talio-network:
+    name: talio-network
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.10.17.0/24
